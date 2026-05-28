@@ -1,6 +1,7 @@
 import Header from "@/app/components/Header";
 import Hero from "@/app/components/Hero";
 import VideoScrubber from "@/app/components/VideoScrubber";
+import IceCreamStory from "@/app/components/IceCreamStory";
 import IngredientImmersion from "@/app/components/IngredientImmersion";
 import FlavorShowcase from "@/app/components/FlavorShowcase";
 import BrandStory from "@/app/components/BrandStory";
@@ -21,6 +22,9 @@ export default function Home() {
 
         {/* Scroll-driven Video Scrubbing & Story Subtitles */}
         <VideoScrubber />
+
+        {/* Cinematic Ice Cream Origin Story — scroll-pinned with evolving cone */}
+        <IceCreamStory />
 
         {/* Mouse Parallax Ingredient Interactive Showcase */}
         <IngredientImmersion />
