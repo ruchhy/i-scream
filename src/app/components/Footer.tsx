@@ -32,9 +32,6 @@ export default function Footer() {
             <a href="#experience" className="hover:text-brand-pistachio transition-colors duration-300">
               Experience
             </a>
-            <a href="#flavors" className="hover:text-brand-pistachio transition-colors duration-300">
-              Curated Flavors
-            </a>
             <a href="#story" className="hover:text-brand-pistachio transition-colors duration-300">
               The Story
             </a>

@@ -7,8 +7,12 @@ import { useGSAP } from "@gsap/react";
 import { motion } from "framer-motion";
 import { ArrowRight, Sparkles } from "lucide-react";
 
+// Register at module level — avoids double-registration issues
+gsap.registerPlugin(ScrollTrigger);
+
 export default function FlavorShowcase() {
   const containerRef = useRef<HTMLDivElement>(null);
+  const desktopRef = useRef<HTMLDivElement>(null);
   const rowRef = useRef<HTMLDivElement>(null);
 
   const flavors = [
@@ -61,41 +65,48 @@ export default function FlavorShowcase() {
   useGSAP(
     () => {
       const row = rowRef.current;
-      if (!row) return;
+      const desktop = desktopRef.current;
+      if (!row || !desktop) return;
 
+      // Re-measure on every run (handles SSR/hydration timing)
       const scrollWidth = row.scrollWidth;
       const viewportWidth = window.innerWidth;
       const amountToScroll = scrollWidth - viewportWidth;
 
       if (amountToScroll > 0) {
         gsap.to(row, {
-          x: -amountToScroll - 100, // extra buffer for luxury spacing
+          x: -amountToScroll,
           ease: "none",
           scrollTrigger: {
-            trigger: containerRef.current,
+            trigger: desktop,
+            scroller: document.documentElement, // match the Lenis scrollerProxy target
             start: "top top",
             end: "bottom bottom",
-            scrub: 1.2, // buttery-smooth inertia scrolling
+            scrub: 1,
             pin: true,
+            anticipatePin: 1,
             invalidateOnRefresh: true,
           },
         });
+
+        // Refresh after creation so Lenis proxy positions are recalculated
+        ScrollTrigger.refresh();
       }
     },
-    { scope: containerRef }
+    { scope: containerRef, dependencies: [] }
   );
 
   return (
     <div ref={containerRef} id="flavors" className="relative w-full bg-brand-black select-none">
       
-      {/* 1. DESKTOP: Dynamic Pinning Horizontal Scroll */}
-      <div className="hidden md:block relative h-[300vh] w-full">
+      {/* 1. DESKTOP & MOBILE: Elegant Pinned Horizontal Scroll */}
+      <div ref={desktopRef} className="relative h-[180vh] w-full">
         {/* Sticky frame containing translation row */}
         <div className="sticky top-0 h-screen w-full flex flex-col justify-center overflow-hidden bg-brand-black">
           
-          {/* Section title inside sticky space */}
-          <div className="px-16 max-w-7xl mx-auto w-full mb-12 flex items-end justify-between z-10">
-            <div>
+          {/* Section title + centred hint */}
+          <div className="px-16 max-w-7xl mx-auto w-full mb-6 flex flex-col items-center text-center z-10">
+            <div className="mb-6">
               <span className="font-sans text-[10px] tracking-[0.45em] text-brand-gold uppercase font-bold mb-3 block">
                 The Master Collection
               </span>
@@ -103,10 +114,16 @@ export default function FlavorShowcase() {
                 CURATED FLAVORS
               </h2>
             </div>
-            <p className="font-sans text-xs text-brand-ivory/40 uppercase tracking-[0.2em] flex items-center space-x-2">
+            <button
+              onClick={() => {
+                // Scroll down by one viewport height to advance the pinned GSAP scroll
+                window.scrollBy({ top: window.innerHeight, behavior: "smooth" });
+              }}
+              className="group flex items-center space-x-2 font-sans text-xs text-brand-ivory/40 uppercase tracking-[0.2em] hover:text-brand-gold transition-colors duration-300 cursor-pointer"
+            >
               <span>Scroll to navigate</span>
-              <ArrowRight className="w-3.5 h-3.5 text-brand-gold" />
-            </p>
+              <ArrowRight className="w-3.5 h-3.5 text-brand-gold group-hover:translate-x-1 transition-transform duration-300" />
+            </button>
           </div>
 
           {/* Row container holding sliding cards */}
@@ -125,10 +142,7 @@ export default function FlavorShowcase() {
                 />
 
                 <div className="relative z-10">
-                  <div className="flex items-center justify-between mb-8">
-                    <span className="font-sans text-[10px] tracking-[0.4em] text-brand-gold uppercase font-bold">
-                      FLAVOR {flavor.num}
-                    </span>
+                  <div className="flex items-center justify-end mb-8">
                     <Sparkles className={`w-4 h-4 ${flavor.textColor} opacity-40 group-hover:opacity-100 transition-opacity duration-300`} />
                   </div>
 
@@ -155,63 +169,6 @@ export default function FlavorShowcase() {
               </div>
             ))}
           </div>
-        </div>
-      </div>
-
-      {/* 2. MOBILE: Clean Stacked Responsive Cards */}
-      <div className="md:hidden w-full px-6 py-24 bg-brand-black flex flex-col space-y-16">
-        <div>
-          <span className="font-sans text-[9px] tracking-[0.4em] text-brand-gold uppercase font-bold mb-3 block">
-            The Master Collection
-          </span>
-          <h2 className="text-3xl font-light text-brand-ivory tracking-[0.05em] uppercase">
-            Curated Flavors
-          </h2>
-          <div className="w-12 h-[1px] bg-brand-gold/30 mt-4" />
-        </div>
-
-        <div className="flex flex-col space-y-8">
-          {flavors.map((flavor, idx) => (
-            <motion.div
-              key={flavor.id}
-              initial={{ opacity: 0, y: 30 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, margin: "-50px" }}
-              transition={{ duration: 1.2, ease: "easeOut" }}
-              className={`w-full flex flex-col justify-between p-8 rounded-2xl glass-panel border ${flavor.borderAccent} shadow-xl relative overflow-hidden`}
-            >
-              <div
-                className={`absolute -right-16 -top-16 w-32 h-32 rounded-full ${flavor.bgAccent} blur-2xl pointer-events-none`}
-              />
-
-              <div className="relative z-10 mb-8">
-                <div className="flex items-center justify-between mb-6">
-                  <span className="font-sans text-[9px] tracking-[0.3em] text-brand-gold uppercase font-bold">
-                    FLAVOR {flavor.num}
-                  </span>
-                  <Sparkles className={`w-3.5 h-3.5 ${flavor.textColor}`} />
-                </div>
-
-                <h3 className="text-2xl font-light text-brand-ivory tracking-[0.05em] uppercase mb-1">
-                  {flavor.name}
-                </h3>
-                <p className="font-serif text-xs text-brand-gold italic mb-6 tracking-[0.05em]">
-                  {flavor.subtitle}
-                </p>
-
-                <p className="font-sans text-xs text-brand-ivory/60 leading-relaxed font-light tracking-[0.05em]">
-                  {flavor.desc}
-                </p>
-              </div>
-
-              <div className="relative z-10 pt-6 border-t border-white/5 flex items-center justify-between">
-                <span className="text-[9px] tracking-[0.15em] font-bold text-brand-ivory uppercase">
-                  Reserve Collection
-                </span>
-                <ArrowRight className="w-3.5 h-3.5 text-brand-gold" />
-              </div>
-            </motion.div>
-          ))}
         </div>
       </div>
     </div>

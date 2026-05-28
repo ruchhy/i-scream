@@ -132,3 +132,9 @@ html.lenis {
 .duration-1500 {
   transition-duration: 1500ms;
 }
+
+/* Nav entrance animation */
+@keyframes navEntrance {
+  from { transform: translateY(-50px); opacity: 0; }
+  to   { transform: translateY(0);     opacity: 1; }
+}

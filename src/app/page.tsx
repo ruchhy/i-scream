@@ -1,13 +1,18 @@
+import type { Metadata } from "next";
 import Header from "@/app/components/Header";
 import Hero from "@/app/components/Hero";
-import VideoScrubber from "@/app/components/VideoScrubber";
 import IceCreamStory from "@/app/components/IceCreamStory";
 import IngredientImmersion from "@/app/components/IngredientImmersion";
-import FlavorShowcase from "@/app/components/FlavorShowcase";
 import BrandStory from "@/app/components/BrandStory";
 import SocialCulture from "@/app/components/SocialCulture";
 import FinalCTA from "@/app/components/FinalCTA";
 import Footer from "@/app/components/Footer";
+
+export const metadata: Metadata = {
+  title: "I-SCREAM | The Cinematic Experience",
+  description:
+    "A scroll-driven cinematic film experience. Watch luxury pistachio ice cream crafted frame by frame, directed by your scroll.",
+};
 
 export default function Home() {
   return (
@@ -20,17 +25,11 @@ export default function Home() {
         {/* Intro Hero Section */}
         <Hero />
 
-        {/* Scroll-driven Video Scrubbing & Story Subtitles */}
-        <VideoScrubber />
-
-        {/* Cinematic Ice Cream Origin Story — scroll-pinned with evolving cone */}
+        {/* Cinematic Ice Cream Origin Story — scroll-pinned with evolving video */}
         <IceCreamStory />
 
         {/* Mouse Parallax Ingredient Interactive Showcase */}
         <IngredientImmersion />
-
-        {/* Pinned Horizontal Flavor Carousel (Responsive Stacked on mobile) */}
-        <FlavorShowcase />
 
         {/* Editorial split-grid brand vision */}
         <BrandStory />
